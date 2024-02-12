@@ -41,7 +41,7 @@
 
 #while x < 8 {
   i += 1
-  if calc.mod(i, 3) == 0 {
+  if calc.rem(i, 3) == 0 {
     continue
   }
   x += i
@@ -55,7 +55,7 @@
 
 #let x = for i in range(5) {
   "a"
-  if calc.mod(i, 3) == 0 {
+  if calc.rem(i, 3) == 0 {
     "_"
     continue
   }
@@ -144,4 +144,19 @@
     { [A]; break },
     for _ in range(3) [B]
   )
+}
+
+---
+// Ref: true
+// Test continue while destructuring.
+// Should output "one = I \ two = II \ one = I".
+#for num in (1, 2, 3, 1) {
+  let (word, roman) = if num == 1 {
+    ("one", "I")
+  } else if num == 2 {
+    ("two", "II")
+  } else {
+    continue
+  }
+  [#word = #roman \ ]
 }

@@ -8,12 +8,17 @@ desktop.ini
 # Tests and benchmarks
 tests/png
 tests/pdf
+tests/svg
 tests/target
+tests/typ/**/*.pdf
+tests/fuzz/target
+tests/fuzz/corpus
+tests/fuzz/artifacts
+tests/fuzz/coverage
 tarpaulin-report.html
 
 # Rust
 /target
-bench/target
 **/*.rs.bk
 
 # Node

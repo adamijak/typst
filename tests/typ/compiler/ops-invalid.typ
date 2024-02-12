@@ -14,7 +14,7 @@
 #test({2*}, 2)
 
 ---
-// Error: 3-13 cannot apply '+' to content
+// Error: 3-13 cannot apply unary '+' to content
 #(+([] + []))
 
 ---
@@ -26,12 +26,24 @@
 #(not ())
 
 ---
-// Error: 3-19 cannot apply '<=' to relative length and ratio
+// Error: 3-19 cannot compare relative length and ratio
 #(30% + 1pt <= 40%)
 
 ---
-// Error: 3-14 cannot apply '<=' to length and length
+// Error: 3-14 cannot compare 1em with 10pt
 #(1em <= 10pt)
+
+---
+// Error: 3-22 cannot compare 2.2 with NaN
+#(2.2 <= float("nan"))
+
+---
+// Error: 3-26 cannot compare integer and string
+#((0, 1, 3) > (0, 1, "a"))
+
+---
+// Error: 3-42 cannot compare 3.5 with NaN
+#((0, "a", 3.5) <= (0, "a", float("nan")))
 
 ---
 // Error: 3-12 cannot divide by zero
@@ -83,22 +95,16 @@
 #(3 / 12pt)
 
 ---
-// Error: 3-10 cannot repeat this string -1 times
+// Error: 3-10 number must be at least zero
 #(-1 * "")
 
 ---
-#{
-  let x = 2
-  for _ in range(61) {
-    (x) *= 2
-  }
-  // Error: 3-17 cannot repeat this string 4611686018427387904 times
-  x * "abcdefgh"
-}
+// Error: 4-5 unknown variable: x
+#((x) = "")
 
 ---
-// Error: 4-5 unknown variable
-#((x) = "")
+// Error: 4-5 unknown variable: x
+#((x,) = (1,))
 
 ---
 // Error: 3-8 cannot mutate a temporary value
@@ -110,15 +116,15 @@
 #(not x = "a")
 
 ---
-// Error: 7-8 unknown variable
+// Error: 7-8 unknown variable: x
 #(1 + x += 3)
 
 ---
-// Error: 3-4 unknown variable
+// Error: 3-4 unknown variable: z
 #(z = 1)
 
 ---
-// Error: 3-7 cannot mutate a constant
+// Error: 3-7 cannot mutate a constant: rect
 #(rect = "hi")
 
 ---

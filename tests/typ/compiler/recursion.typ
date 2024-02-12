@@ -15,7 +15,7 @@
 
 ---
 // Test with unnamed function.
-// Error: 17-18 unknown variable
+// Error: 17-18 unknown variable: f
 #let f = (n) => f(n - 1)
 #f(10)
 
@@ -23,13 +23,19 @@
 // Test capturing with named function.
 #let f = 10
 #let f() = f
-#test(type(f()), "function")
+#test(type(f()), function)
 
 ---
 // Test capturing with unnamed function.
 #let f = 10
 #let f = () => f
-#test(type(f()), "integer")
+#test(type(f()), int)
+
+---
+// Test redefinition.
+#let f(x) = "hello"
+#let f(x) = if x != none { f(none) } else { "world" }
+#test(f(1), "world")
 
 ---
 // Error: 15-21 maximum function call depth exceeded
@@ -37,6 +43,14 @@
 #rec(1)
 
 ---
-#let f(x) = "hello"
-#let f(x) = if x != none { f(none) } else { "world" }
-#test(f(1), "world")
+// Test cyclic imports during layout.
+// Error: 14-37 maximum layout depth exceeded
+// Hint: 14-37 try to reduce the amount of nesting in your layout
+#layout(_ => include "recursion.typ")
+
+---
+// Test recursive show rules.
+// Error: 22-25 maximum show rule depth exceeded
+// Hint: 22-25 check whether the show rule matches its own output
+#show math.equation: $x$
+$ x $

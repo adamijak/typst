@@ -14,6 +14,27 @@ Die Zeitung Der Spiegel existiert.
 TeX, LaTeX, LuaTeX and LuaLaTeX!
 
 ---
+// Test direct cycle.
+#show "Hello": text(red)[Hello]
+Hello World!
+
+---
+// Test replacing text with raw text.
+#show "rax": `rax`
+The register rax.
+
+---
+// Test indirect cycle.
+#show "Good": [Typst!]
+#show "Typst": [Fun!]
+#show "Fun": [Good!]
+
+#set text(ligatures: false)
+Good \
+Fun \
+Typst \
+
+---
 // Test that replacements happen exactly once.
 #show "A": [BB]
 #show "B": [CC]
@@ -24,6 +45,19 @@ AA (8)
 #show regex("(?i)\bworld\b"): [🌍]
 
 Treeworld, the World of worlds, is a world.
+
+---
+// Test there is no crashing on empty strings
+// Error: 1:7-1:9 text selector is empty
+#show "": []
+
+---
+// Error: 1:7-1:16 regex selector is empty
+#show regex(""): [AA]
+
+---
+// Error: 1:7-1:42 regex matches empty text
+#show regex("(VAR_GLOBAL|END_VAR||BOOL)") : []
 
 ---
 // This is a fun one.
@@ -54,6 +88,6 @@ World
 ---
 // Test absolute path in layout phase.
 
-#show "GRAPH": image("/graph.png")
+#show "GRAPH": image("/files/graph.png")
 
 The GRAPH has nodes.

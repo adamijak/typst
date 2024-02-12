@@ -1,5 +1,30 @@
-// Integrated test for content fields.
+// Tests content field access.
 
+---
+// Ensure that fields from set rules are materialized into the element before
+// a show rule runs.
+#set table(columns: (10pt, auto))
+#show table: it => it.columns
+#table[A][B][C][D]
+
+---
+// Test it again with a different element.
+#set heading(numbering: "(I)")
+#show heading: set text(size: 11pt, weight: "regular")
+#show heading: it => it.numbering
+= Heading
+
+---
+// Test it with query.
+#set raw(lang: "rust")
+#locate(loc => {
+  let elem = query(<myraw>, loc).first()
+  elem.lang
+})
+`raw` <myraw>
+
+---
+// Integrated test for content fields.
 #let compute(equation, ..vars) = {
   let vars = vars.named()
   let f(elem) = {
@@ -15,8 +40,8 @@
       }
     } else if func == math.attach {
       let value = f(elem.base)
-      if elem.has("top") {
-        value = calc.pow(value, f(elem.top))
+      if elem.has("t") {
+        value = calc.pow(value, f(elem.t))
       }
       value
     } else if elem.has("children") {

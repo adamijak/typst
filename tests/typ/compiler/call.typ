@@ -31,12 +31,12 @@
 
 // Call function assigned to variable.
 #let alias = type
-#test(alias(alias), "function")
+#test(alias(alias), type)
 
 // Callee expressions.
 #{
   // Wrapped in parens.
-  test((type)("hi"), "string")
+  test((type)("hi"), str)
 
   // Call the return value of a function.
   let adder(dx) = x => x + dx
@@ -44,8 +44,13 @@
 }
 
 ---
-// Error: 26-30 duplicate argument
+// Error: 26-30 duplicate argument: font
 #set text(font: "Arial", font: "Helvetica")
+
+---
+// Error: 4-15 the argument `amount` is positional
+// Hint: 4-15 try removing `amount:`
+#h(amount: 0.5)
 
 ---
 // Error: 2-6 expected function, found boolean
@@ -94,13 +99,14 @@
 #func((x):1)
 
 ---
-// Error: 2:1 expected closing bracket
+// Error: 6-7 unclosed delimiter
 #func[`a]`
 
 ---
-// Error: 8 expected closing paren
+// Error: 7-8 unclosed delimiter
 #{func(}
 
 ---
-// Error: 2:1 expected quote
+// Error: 6-7 unclosed delimiter
+// Error: 1:7-2:1 unclosed string
 #func("]

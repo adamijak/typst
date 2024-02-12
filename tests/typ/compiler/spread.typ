@@ -26,8 +26,8 @@
 // Test doing things with arguments.
 #{
   let save(..args) = {
-    test(type(args), "arguments")
-    test(repr(args), "(1, 2, three: true)")
+    test(type(args), arguments)
+    test(repr(args), "(three: true, 1, 2)")
   }
 
   save(1, 2, three: true)
@@ -56,6 +56,11 @@
 #f(..for x in () [])
 
 ---
+// unnamed spread
+#let f(.., a) = a
+#test(f(1, 2, 3), 3)
+
+---
 // Error: 13-19 cannot spread string
 #calc.min(.."nope")
 
@@ -64,7 +69,7 @@
 #let f(..true) = none
 
 ---
-// Error: 15-16 only one argument sink is allowed
+// Error: 13-16 only one argument sink is allowed
 #let f(..a, ..b) = none
 
 ---
@@ -91,3 +96,38 @@
 ---
 // Error: 5-11 cannot spread array into dictionary
 #(..(1, 2), a: 1)
+
+---
+// Spread at beginning.
+#{
+  let f(..a, b) = (a, b)
+  test(repr(f(1)), "((), 1)")
+  test(repr(f(1, 2, 3)), "((1, 2), 3)")
+  test(repr(f(1, 2, 3, 4, 5)), "((1, 2, 3, 4), 5)")
+}
+
+---
+// Spread in the middle.
+#{
+  let f(a, ..b, c) = (a, b, c)
+  test(repr(f(1, 2)), "(1, (), 2)")
+  test(repr(f(1, 2, 3, 4, 5)), "(1, (2, 3, 4), 5)")
+}
+
+---
+// Unnamed sink should just ignore any extra arguments.
+#{
+  let f(a, b: 5, ..) = (a, b)
+  test(f(4), (4, 5))
+  test(f(10, b: 11), (10, 11))
+  test(f(13, 20, b: 12), (13, 12))
+  test(f(15, b: 16, c: 13), (15, 16))
+}
+
+---
+#{
+  let f(..a, b, c, d) = none
+
+  // Error: 4-10 missing argument: d
+  f(1, 2)
+}

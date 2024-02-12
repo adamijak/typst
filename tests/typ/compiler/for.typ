@@ -7,8 +7,8 @@
 // Empty array.
 #for x in () [Nope]
 
-// Dictionary is not traversed in insertion order.
-// Should output `Age: 2. Name: Typst.`.
+// Dictionary is traversed in insertion order.
+// Should output `Name: Typst. Age: 2.`.
 #for (k, v) in (Name: "Typst", Age: 2) [
   #k: #v.
 ]
@@ -76,7 +76,7 @@
 
 // Return value.
 #test(for v in "" [], none)
-#test(type(for v in "1" []), "content")
+#test(type(for v in "1" []), content)
 
 ---
 // Uniterable expression.
@@ -92,8 +92,8 @@
 
 ---
 // Destructuring without parentheses.
-// Error: 7 expected keyword `in`. did you mean to use a destructuring pattern?
 // Error: 7 expected keyword `in`
+// Hint: 7 did you mean to use a destructuring pattern?
 #for k, v in (a: 4, b: 5) {
   dont-care
 }

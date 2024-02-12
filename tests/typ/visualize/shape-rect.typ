@@ -32,7 +32,7 @@
 #stack(
   dir: ltr,
   spacing: 1fr,
-  rect(width: 2cm, radius: 60%),
+  rect(width: 2cm, radius: 30%),
   rect(width: 1cm, radius: (left: 10pt, right: 5pt)),
   rect(width: 1.25cm, radius: (
     top-left: 2pt,
@@ -51,5 +51,13 @@
 #rect(radius: (left: 10pt, cake: 5pt))
 
 ---
-// Error: 15-21 expected length, color, stroke, none, dictionary, or auto, found array
+// Error: 15-21 expected length, color, gradient, pattern, dictionary, stroke, none, or auto, found array
 #rect(stroke: (1, 2))
+
+---
+#set page(width: 17.8cm)
+#lorem(100)
+#rect(lorem(100))
+#set par(justify: true)
+#lorem(100)
+#rect(lorem(100))

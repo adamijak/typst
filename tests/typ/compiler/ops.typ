@@ -33,6 +33,11 @@
 #test((1, 2) + (3, 4), (1, 2, 3, 4))
 #test((a: 1) + (b: 2, c: 3), (a: 1, b: 2, c: 3))
 
+---
+// Error: 3-26 value is too large
+#(9223372036854775807 + 1)
+
+---
 // Subtraction.
 #test(1-4, 3*-1)
 #test(4cm - 2cm, 2cm)
@@ -74,11 +79,11 @@
   test(v + v, 2 * v)
 
   // Integer addition does not give a float.
-  if type(v) != "integer" {
+  if type(v) != int {
     test(v + v, 2.0 * v)
   }
 
-  if "relative" not in type(v) and ("pt" not in repr(v) or "em" not in repr(v)) {
+  if type(v) != relative and ("pt" not in repr(v) or "em" not in repr(v)) {
     test(v / v, 1.0)
   }
 }
@@ -116,12 +121,26 @@
 #test(0xA + 0xa, 0x14)
 
 ---
-// Error: 2-7 invalid binary number
+// Error: 2-7 invalid binary number: 0b123
 #0b123
 
 ---
-// Error: 2-8 invalid hexadecimal number
+// Error: 2-8 invalid hexadecimal number: 0x123z
 #0x123z
+
+---
+// Test that multiplying infinite numbers by certain units does not crash.
+#(float("inf") * 1pt)
+#(float("inf") * 1em)
+#(float("inf") * (1pt + 1em))
+
+---
+// Test that trying to produce a NaN scalar (such as in lengths) does not crash.
+#let infpt = float("inf") * 1pt
+#test(infpt - infpt, 0pt)
+#test(infpt + (-infpt), 0pt)
+// TODO: this result is surprising
+#test(infpt / float("inf"), 0pt)
 
 ---
 // Test boolean operators.
@@ -187,6 +206,18 @@
 #test(50% < 40% + 0pt, false)
 #test(40% + 0pt < 50% + 0pt, true)
 #test(1em < 2em, true)
+#test((0, 1, 2, 4) < (0, 1, 2, 5), true)
+#test((0, 1, 2, 4) < (0, 1, 2, 3), false)
+#test((0, 1, 2, 3.3) > (0, 1, 2, 4), false)
+#test((0, 1, 2) < (0, 1, 2, 3), true)
+#test((0, 1, "b") > (0, 1, "a", 3), true)
+#test((0, 1.1, 3) >= (0, 1.1, 3), true)
+#test((0, 1, datetime(day: 1, month: 12, year: 2023)) <= (0, 1, datetime(day: 1, month: 12, year: 2023), 3), true)
+#test(("a", 23, 40, "b") > ("a", 23, 40), true)
+#test(() <= (), true)
+#test(() >= (), true)
+#test(() <= (1,), true)
+#test((1,) <= (), false)
 
 ---
 // Test assignment operators.
@@ -201,7 +232,49 @@
 #(x += "thing") #test(x, "something")
 
 ---
-// Error: 3-6 cannot mutate a constant
+// Test destructuring assignments.
+
+#let a = none
+#let b = none
+#let c = none
+#((a,) = (1,))
+#test(a, 1)
+
+#((_, a, b, _) = (1, 2, 3, 4))
+#test(a, 2)
+#test(b, 3)
+
+#((a, b, ..c) = (1, 2, 3, 4, 5, 6))
+#test(a, 1)
+#test(b, 2)
+#test(c, (3, 4, 5, 6))
+
+#((a: a, b, x: c) = (a: 1, b: 2, x: 3))
+#test(a, 1)
+#test(b, 2)
+#test(c, 3)
+
+#let a = (1, 2)
+#((a: a.at(0), b) = (a: 3, b: 4))
+#test(a, (3, 2))
+#test(b, 4)
+
+#let a = (1, 2)
+#((a.at(0), b) = (3, 4))
+#test(a, (3, 2))
+#test(b, 4)
+
+#((a, ..b) = (1, 2, 3, 4))
+#test(a, 1)
+#test(b, (2, 3, 4))
+
+#let a = (1, 2)
+#((b, ..a.at(0)) = (1, 2, 3, 4))
+#test(a, ((2, 3, 4), 2))
+#test(b, 1)
+
+---
+// Error: 3-6 cannot mutate a constant: box
 #(box = 1)
 
 ---
@@ -229,6 +302,7 @@
 // Apply positional arguments.
 #let add(x, y) = x + y
 #test(add.with(2)(3), 5)
+#test(add.with(2, 3)(), 5)
 #test(add.with(2).with(3)(), 5)
 #test((add.with(2))(4), 6)
 #test((add.with(2).with(3))(), 5)
@@ -240,3 +314,14 @@
 #let inc2 = inc.with(y: 2)
 #test(inc2(2), 4)
 #test(inc2(2, y: 4), 6)
+
+// Apply arguments to an argument sink.
+#let times(..sink) = {
+  let res = sink.pos().product()
+  if sink.named().at("negate", default: false) { res *= -1 }
+  res
+}
+#test((times.with(2, negate: true).with(5))(), -10)
+#test((times.with(2).with(5).with(negate: true))(), -10)
+#test((times.with(2).with(5, negate: true))(), -10)
+#test((times.with(2).with(negate: true))(5), -10)

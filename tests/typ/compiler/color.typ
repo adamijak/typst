@@ -19,8 +19,67 @@
 }
 
 ---
+// The the different color spaces
+#let col = rgb(50%, 64%, 16%)
+#box(square(size: 9pt, fill: col))
+#box(square(size: 9pt, fill: rgb(col)))
+#box(square(size: 9pt, fill: oklab(col)))
+#box(square(size: 9pt, fill: oklch(col)))
+#box(square(size: 9pt, fill: luma(col)))
+#box(square(size: 9pt, fill: cmyk(col)))
+#box(square(size: 9pt, fill: color.linear-rgb(col)))
+#box(square(size: 9pt, fill: color.hsl(col)))
+#box(square(size: 9pt, fill: color.hsv(col)))
+
+---
+// Colors outside the sRGB gamut.
+#box(square(size: 9pt, fill: oklab(90%, -0.2, -0.1)))
+#box(square(size: 9pt, fill: oklch(50%, 0.5, 0deg)))
+
+---
+// Test hue rotation
+#let col = rgb(50%, 64%, 16%)
+
+// Oklch
+#for x in range(0, 11) {
+  box(square(size: 9pt, fill: rgb(col).rotate(x * 36deg)))
+}
+
+// HSL
+#for x in range(0, 11) {
+  box(square(size: 9pt, fill: rgb(col).rotate(x * 36deg, space: color.hsl)))
+}
+
+// HSV
+#for x in range(0, 11) {
+  box(square(size: 9pt, fill: rgb(col).rotate(x * 36deg, space: color.hsv)))
+}
+
+---
+// Test saturation
+#let col = color.hsl(180deg, 0%, 50%)
+#for x in range(0, 11) {
+  box(square(size: 9pt, fill: col.saturate(x * 10%)))
+}
+
+#let col = color.hsl(180deg, 100%, 50%)
+#for x in range(0, 11) {
+  box(square(size: 9pt, fill: col.desaturate(x * 10%)))
+}
+
+#let col = color.hsv(180deg, 0%, 50%)
+#for x in range(0, 11) {
+  box(square(size: 9pt, fill: col.saturate(x * 10%)))
+}
+
+#let col = color.hsv(180deg, 100%, 50%)
+#for x in range(0, 11) {
+  box(square(size: 9pt, fill: col.desaturate(x * 10%)))
+}
+
+---
 // Test gray color modification.
 // Ref: false
-#test(luma(20%).lighten(50%), luma(60%))
-#test(luma(80%).darken(20%), luma(63.9%))
-#test(luma(80%).negate(), luma(20%))
+#test-repr(luma(20%).lighten(50%), luma(60%))
+#test-repr(luma(80%).darken(20%), luma(64%))
+#test-repr(luma(80%).negate(), luma(20%))

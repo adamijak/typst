@@ -5,6 +5,10 @@
 `A``B`
 
 ---
+// Empty raw block.
+Empty raw block:``.
+
+---
 // Typst syntax inside.
 ```typ #let x = 1``` \
 ```typ #f(1)```
@@ -49,11 +53,27 @@ The keyword ```rust let```.
      ```
 
 ---
+// Do not take empty lines into account when computing dedent.
+```
+        A
+
+        B
+```
+
+---
+// Take last line into account when computing dedent.
+```
+        A
+
+        B
+    ```
+
+---
 // Text show rule
 #show raw: set text(font: "Roboto")
 `Roboto`
 
 ---
 // Unterminated.
-// Error: 2:1 expected 1 backtick
+// Error: 1-2:1 unclosed raw text
 `endless

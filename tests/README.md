@@ -14,12 +14,12 @@ Top level directory structure:
 ## Running the tests
 Running all tests (including unit tests):
 ```bash
-cargo test --all
+cargo test --workspace
 ```
 
 Running just the integration tests (the tests in this directory):
 ```bash
-cargo test --all --test tests
+cargo test --workspace --test tests
 ```
 
 You may want to [make yourself an alias](#making-an-alias) like:
@@ -50,17 +50,18 @@ making changes.
 testit --pdf
 ```
 
-## Creating new tests
-To keep things small, please optimize reference images before committing them.
-When you use the approve button from the Test Helper (see the `tools` folder)
-this happens automatically if you have `oxipng` installed.
+## Update expected images
+If you created a new test or fixed a bug in an existing test, you need to update
+the reference image used for comparison. For this, you can use the
+`UPDATE_EXPECT` environment variable or the `--update` flag:
 ```bash
-# One image
-oxipng -o max path/to/image.png
-
-# All images
-oxipng -r -o max tests/ref
+testit mytest --update
 ```
+
+If you use the VS Code test helper extension (see the `tools` folder), you can
+alternatively use the checkmark button to update the reference image. In that
+case you should also install `oxipng` on your system so that the test helper
+can optimize the reference images.
 
 ## Making an alias
 If you want to have a quicker way to run the tests, consider adding a shortcut
@@ -72,13 +73,13 @@ testit empty.typ
 ### Bash
 Open your Bash configuration by executing `nano ~/.bashrc`.
 ```bash
-alias testit="cargo test --all --test tests --"
+alias testit="cargo test --workspace --test tests --"
 ```
 
 ### PowerShell
 Open your PowerShell profile by executing `notepad $profile`.
 ```ps
 function testit {
-    cargo test --all --test tests -- $args
+    cargo test --workspace --test tests -- $args
 }
 ```

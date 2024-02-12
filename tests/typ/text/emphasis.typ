@@ -7,6 +7,13 @@ _Emphasized and *strong* words!_
 // Inside of a word it's a normal underscore or star.
 hello_world Nutzer*innen
 
+// CJK characters will not need spaces.
+中文一般使用*粗体*或者_楷体_来表示强调。
+
+日本語では、*太字*や_斜体_を使って強調します。
+
+中文中混有*Strong*和_Empasis_。
+
 // Can contain paragraph in nested content block.
 _Still #[
 
@@ -27,17 +34,17 @@ Normal
 *Medium* and *#[*Bold*]*
 
 ---
-// Error: 13 expected underscore
+// Error: 6-7 unclosed delimiter
 #box[_Scoped] to body.
 
 ---
 // Ends at paragraph break.
-// Error: 7 expected underscore
+// Error: 1-2 unclosed delimiter
 _Hello
 
 World
 
 ---
-// Error: 26 expected star
-// Error: 26 expected underscore
+// Error: 11-12 unclosed delimiter
+// Error: 3-4 unclosed delimiter
 #[_Cannot *be interleaved]

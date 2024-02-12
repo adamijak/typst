@@ -9,6 +9,15 @@ This is a spaceexceedinglylongy.
 Supercalifragilisticexpialidocious Expialigoricmetrioxidation.
 
 ---
+// Test for non-breaking space and hyphen.
+There are non\u{2011}breaking~characters.
+
+---
+// Test for narrow non-breaking space.
+#show "_": sym.space.nobreak.narrow
+0.1_g, 1_g, 10_g, 100_g, 1_000_g, 10_000_g, 100_000_g, 1_000_000_g
+
+---
 // Test that there are no unwanted line break opportunities on run change.
 This is partly emp#emph[has]ized.
 
@@ -34,3 +43,18 @@ With a soft #linebreak(justify: true)
 break you can force a break without #linebreak(justify: true)
 breaking justification. #linebreak(justify: false)
 Nice!
+
+---
+// Test comments at the end of a line
+First part//
+Second part
+
+// Test comments at the end of a line with pre-spacing
+First part          //
+Second part
+
+---
+// Test linebreak for East Asian languages
+ทีวีตรวจทานนอร์ทแฟรีเลคเชอร์โกลด์อัลบัมเชอร์รี่เย้วสโตร์กฤษณ์เคลมเยอบีร่าพ่อค้าบลูเบอร์รี่สหัสวรรษโฮปแคนูโยโย่จูนสตรอว์เบอร์รีซื่อบื้อเยนแบ็กโฮเป็นไงโดนัททอมสเตริโอแคนูวิทย์แดรี่โดนัทวิทย์แอปพริคอทเซอร์ไพรส์ไฮบริดกิฟท์อินเตอร์โซนเซอร์วิสเทียมทานโคโยตี้ม็อบเที่ยงคืนบุญคุณ
+
+

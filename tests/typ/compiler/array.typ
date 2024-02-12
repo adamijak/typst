@@ -47,7 +47,7 @@
 
 ---
 // Test rvalue out of bounds.
-// Error: 2-17 array index out of bounds (index: 5, len: 3)
+// Error: 2-17 array index out of bounds (index: 5, len: 3) and no default value was specified
 #(1, 2, 3).at(5)
 
 ---
@@ -59,6 +59,24 @@
 }
 
 ---
+// Test default value.
+#test((1, 2, 3).at(2, default: 5), 3)
+#test((1, 2, 3).at(3, default: 5), 5)
+
+---
+// Test remove with default value.
+
+#{
+  let array = (1, 2, 3)
+  test(array.remove(2, default: 5), 3)
+}
+
+#{
+  let array = (1, 2, 3)
+  test(array.remove(3, default: 5), 5)
+}
+
+---
 // Test bad lvalue.
 // Error: 2:3-2:14 cannot mutate a temporary value
 #let array = (1, 2, 3)
@@ -66,7 +84,7 @@
 
 ---
 // Test bad lvalue.
-// Error: 2:3-2:15 type array has no method `yolo`
+// Error: 2:9-2:13 type array has no method `yolo`
 #let array = (1, 2, 3)
 #(array.yolo() = 4)
 
@@ -117,7 +135,7 @@
 }
 
 ---
-// Error: 2:16-2:18 missing argument: index
+// Error: 2:2-2:18 missing argument: index
 #let numbers = ()
 #numbers.insert()
 
@@ -167,6 +185,27 @@
 #(1, 2, 3).fold(0, () => none)
 
 ---
+// Test the `sum` method.
+#test(().sum(default: 0), 0)
+#test(().sum(default: []), [])
+#test((1, 2, 3).sum(), 6)
+
+---
+// Error: 2-10 cannot calculate sum of empty array with no default
+#().sum()
+
+---
+// Test the `product` method.
+#test(().product(default: 0), 0)
+#test(().product(default: []), [])
+#test(([ab], 3).product(), [ab]*3)
+#test((1, 2, 3).product(), 6)
+
+---
+// Error: 2-14 cannot calculate product of empty array with no default
+#().product()
+
+---
 // Test the `rev` method.
 #test(range(3).rev(), (2, 1, 0))
 
@@ -191,31 +230,108 @@
 #([One], [Two], [Three]).join([, ], last: [ and ]).
 
 ---
-// Test the `sorted` method.
-#test(().sorted(), ())
-#test(((true, false) * 10).sorted(), (false,) * 10 + (true,) * 10)
-#test(("it", "the", "hi", "text").sorted(), ("hi", "it", "text", "the"))
-#test((2, 1, 3, 10, 5, 8, 6, -7, 2).sorted(), (-7, 1, 2, 2, 3, 5, 6, 8, 10))
+// Test the `intersperse` method
+#test(().intersperse("a"), ())
+#test((1,).intersperse("a"), (1,))
+#test((1, 2).intersperse("a"), (1, "a", 2))
+#test((1, 2, "b").intersperse("a"), (1, "a", 2, "a", "b"))
 
 ---
-// Error: 2-26 cannot order content and content
+// Test the `sorted` method.
+#test(().sorted(), ())
+#test(().sorted(key: x => x), ())
+#test(((true, false) * 10).sorted(), (false,) * 10 + (true,) * 10)
+#test(("it", "the", "hi", "text").sorted(), ("hi", "it", "text", "the"))
+#test(("I", "the", "hi", "text").sorted(key: x => x), ("I", "hi", "text", "the"))
+#test(("I", "the", "hi", "text").sorted(key: x => x.len()), ("I", "hi", "the", "text"))
+#test((2, 1, 3, 10, 5, 8, 6, -7, 2).sorted(), (-7, 1, 2, 2, 3, 5, 6, 8, 10))
+#test((2, 1, 3, -10, -5, 8, 6, -7, 2).sorted(key: x => x), (-10, -7, -5, 1, 2, 2, 3, 6, 8))
+#test((2, 1, 3, -10, -5, 8, 6, -7, 2).sorted(key: x => x * x), (1, 2, 2, 3, -5, 6, -7, 8, -10))
+
+---
+// Error: 12-18 unexpected argument
+#().sorted(x => x)
+
+---
+// Test the `zip` method.
+#test(().zip(()), ())
+#test((1,).zip(()), ())
+#test((1,).zip((2,)), ((1, 2),))
+#test((1, 2).zip((3, 4)), ((1, 3), (2, 4)))
+#test((1, 2, 3, 4).zip((5, 6)), ((1, 5), (2, 6)))
+#test(((1, 2), 3).zip((4, 5)), (((1, 2), 4), (3, 5)))
+#test((1, "hi").zip((true, false)), ((1, true), ("hi", false)))
+#test((1, 2, 3).zip((3, 4, 5), (6, 7, 8)), ((1, 3, 6), (2, 4, 7), (3, 5, 8)))
+#test(().zip((), ()), ())
+#test((1,).zip((2,), (3,)), ((1, 2, 3),))
+#test((1, 2, 3).zip(), ((1,), (2,), (3,)))
+#test(array.zip(()), ())
+
+
+---
+// Test the `enumerate` method.
+#test(().enumerate(), ())
+#test(().enumerate(start: 5), ())
+#test(("a", "b", "c").enumerate(), ((0, "a"), (1, "b"), (2, "c")))
+#test(("a", "b", "c").enumerate(start: 1), ((1, "a"), (2, "b"), (3, "c")))
+#test(("a", "b", "c").enumerate(start: 42), ((42, "a"), (43, "b"), (44, "c")))
+#test(("a", "b", "c").enumerate(start: -7), ((-7, "a"), (-6, "b"), (-5, "c")))
+
+---
+// Test the `dedup` method.
+#test(().dedup(), ())
+#test((1,).dedup(), (1,))
+#test((1, 1).dedup(), (1,))
+#test((1, 2, 1).dedup(), (1, 2))
+#test(("Jane", "John", "Eric").dedup(), ("Jane", "John", "Eric"))
+#test(("Jane", "John", "Eric", "John").dedup(), ("Jane", "John", "Eric"))
+
+---
+// Test the `dedup` with the `key` argument.
+#test((1, 2, 3, 4, 5, 6).dedup(key: x => calc.rem(x, 2)), (1, 2))
+#test((1, 2, 3, 4, 5, 6).dedup(key: x => calc.rem(x, 3)), (1, 2, 3))
+#test(("Hello", "World", "Hi", "There").dedup(key: x => x.len()), ("Hello", "Hi"))
+#test(("Hello", "World", "Hi", "There").dedup(key: x => x.at(0)), ("Hello", "World", "There"))
+
+---
+// Error: 9-26 unexpected argument: val
+#().zip(val: "applicable")
+
+---
+// Error: 13-30 unexpected argument: val
+#().zip((), val: "applicable")
+
+---
+// Error: 32-37 cannot divide by zero
+#(1, 2, 0, 3).sorted(key: x => 5 / x)
+
+---
+// Error: 2-26 cannot compare content and content
 #([Hi], [There]).sorted()
 
 ---
-// Error: 2-18 array index out of bounds (index: -4, len: 3)
+// Error: 2-26 cannot compare 3em with 2pt
+#(1pt, 2pt, 3em).sorted()
+
+---
+// Error: 42-52 unexpected argument
+#((k: "a", v: 2), (k: "b", v: 1)).sorted(it => it.v)
+
+---
+// Error: 2-18 array index out of bounds (index: -4, len: 3) and no default value was specified
 #(1, 2, 3).at(-4)
 
 ---
-// Error: 4 expected closing paren
+// Error: 3-4 unclosed delimiter
 #{(}
 
-// Error: 3-4 unexpected closing paren
+// Error: 2-3 unclosed delimiter
 #{)}
 
 // Error: 4-6 unexpected end of block comment
 #(1*/2)
 
-// Error: 6-8 invalid number suffix
+// Error: 6-8 invalid number suffix: u
 #(1, 1u 2)
 
 // Error: 3-4 unexpected comma
